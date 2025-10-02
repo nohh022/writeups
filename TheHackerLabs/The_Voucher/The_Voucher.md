@@ -2,6 +2,7 @@
 
 ## 📌 Información General
     - Nombre de la máquina: The Voucher
+    - Plataforma: The Hacker Labs
     - Dificultad: Avanzado
     - Creador: K0B4KS
     - OS: Linux
