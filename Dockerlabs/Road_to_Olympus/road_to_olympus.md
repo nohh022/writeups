@@ -18,42 +18,42 @@ Sólo tenemos conexión con la máquina Hades cuya IP es la 10.10.10.2, así que
 
 ## 🔥 Primera Máquina - Hades
 
-En primer lugar, mediante `ping` enviamos una traza icmp a la 10.10.10.2 para comprobar la conexión con la máquina.
+En primer lugar, mediante **ping** enviamos una traza icmp a la 10.10.10.2 para comprobar la conexión con la máquina.
 
 ![ping_hades](screenshots/1-Hades/ping-hades.png)
 
 ### 🔍 Enumeración de Puertos
 
-Vemos que disponemos de conexión, así que vamos a proceder a enumerar los puertos abiertos de la máquina, para ello, emplearemos la herramienta `nmap`.
+Vemos que disponemos de conexión, así que vamos a proceder a enumerar los puertos abiertos de la máquina, para ello, emplearemos la herramienta **nmap**.
 
 ![allPorts_hades](screenshots/1-Hades/allPorts_hades.png)
 
-Observamos que la máquina tiene abiertos los puertos `22` y `80`, así que vamos a enumerar los servicios y sus versiones que se están ejecutando en ellos.
+Observamos que la máquina tiene abiertos los puertos **22** y **80**, así que vamos a enumerar los servicios y sus versiones que se están ejecutando en ellos.
 
 ![target_hades](screenshots/1-Hades/target_hades.png)
 
 ### Puerto 80
 
 En el escaneo, vemos que la web está montada con Python.
-Al acceder a ella, de primeras vemos una pantalla roja con un texto informativo:"¡Atención, esto no es un CTF!" y un botón de cerrar, el cual pulsamos y se nos muestra una web informativa sobre el uso de `Ligolo`, aunque ya adelanto de que vamos a resolver este reto utilizando `chisel` y `socat`.
+Al acceder a ella, de primeras vemos una pantalla roja con un texto informativo:"¡Atención, esto no es un CTF!" y un botón de cerrar, el cual pulsamos y se nos muestra una web informativa sobre el uso de **Ligolo**, aunque ya adelanto de que vamos a resolver este reto utilizando **chisel** y **socat**.
 
 Revisando el código fuente de la página, justo abajo del todo, encontramos una contraseña codificada y un nombre de usuario.
 
 ![source_80_hades](screenshots/1-Hades/source_80_hades.png)
 
-Vamos a decodificar la contraseña, para ello, primero decodificamos con `base32` y después con `base64`. El resultado obtenido nos lo da en formato hexadecimal, así que utilizando `xxd` lo pasamos a string.
+Vamos a decodificar la contraseña, para ello, primero decodificamos con **base32** y después con **base64**. El resultado obtenido nos lo da en formato hexadecimal, así que utilizando **xxd** lo pasamos a string.
 
 ```bash
 echo 'JZKECZ2NPJAWOTT2JVTU42SVM5HGU23HJZVFCZ22NJGWOTTNKVTU26SJM5GXUQLHJV5ESZ2NPJEWOTLKIU6Q====' | base32 -d | base64 -d | xxd -r -p
 ```
 
-Obtenemos como resultado --> P0seidón2022!
+Obtenemos como resultado --> **P0seidón2022!**
 
 Aclaración: la "ó" no la interpreta correctamente la terminal, pero intuimos que se trata de ella.
 
 ### 🔑 Acceso por SSH
 
-Ahora que disponemos de credencialas, `cerbero:P0seidón2022!`, vamos a conectarnos por ssh a la 10.10.10.2.
+Ahora que disponemos de credencialas, **cerbero:P0seidón2022!**, vamos a conectarnos por ssh a la 10.10.10.2.
 
 Una vez conectados, vemos que tenemos permisos sudoers para ejecutar todo lo que queramos, así que usando un `sudo bash` nos convertiremos en root.
 
@@ -67,28 +67,28 @@ Con la primera máquina - Hades completada, tenemos que utilizarla para pivotar 
 
 ### ⚙️ Configuración de Chisel
 
-Nosotros no disponemos de conexión directa con la máquina Poseidón pero la Hades si la tiene, por lo tanto, vamos a utilizar `chisel` para mandarnos las conexiones de la máquina Hades a la nuestra.
+Nosotros no disponemos de conexión directa con la máquina Poseidón pero la Hades si la tiene, por lo tanto, vamos a utilizar **chisel** para mandarnos las conexiones de la máquina Hades a la nuestra.
 
-Primero usamos en Hades el comando `uname -m` y obtenemos `x86_64`, lo que nos indica que es una arquitectura amd64. Ahora vamos al repositorio de github de chisel [https://github.com/jpillora/chisel] y accemos click en `v1.11.3 Latest`.
+Primero usamos en Hades el comando `uname -m` y obtenemos **x86_64**, lo que nos indica que es una arquitectura amd64. Ahora vamos al repositorio de github de chisel [https://github.com/jpillora/chisel] y accemos click en **v1.11.3 Latest**.
 
 ![chisel_github1](screenshots/2-Poseidon/chisel_github1.png)
 
-Una vez dentro, buscamos la versión para `linux_amd64` y nos la descargamos. En este caso, bajamos la de extensión `.gz`
+Una vez dentro, buscamos la versión para **linux_amd64** y nos la descargamos. En este caso, bajamos la de extensión **.gz**
 
 ![chisel_github2](screenshots/2-Poseidon/chisel_github2.png)
 
 
-Ahora que la tenemos descargada, la descomprimimos con `gunzip` y le ponemos un nombre más simple, chisel.
+Ahora que la tenemos descargada, la descomprimimos con **gunzip** y le ponemos un nombre más simple, chisel.
 ```bash
 gunzip chisel_1.11.3_linux_adm64.gz
 mv chisel_1.11.3_linux_adm64 chisel
 ```
 
-También vamos a descargar `socat`, lo necesitaremos más adelante, el procedimiento es el mismo pero desde el repositorio de `socat` en github [https://github.com/3ndG4me/socat], una vez en él, hacemos click `v1.7.3 Linux, Windows, ...`
+También vamos a descargar **socat**, lo necesitaremos más adelante, el procedimiento es el mismo pero desde el repositorio de **socat** en github [https://github.com/3ndG4me/socat], una vez en él, hacemos click **v1.7.3 Linux, Windows, ...**
 
 ![socat_github1](screenshots/2-Poseidon/socat_github1.png)
 
-Una vez ahí, nos bajamos la versión de 64 para linux, en este caso cogemos el `.bin` y lo renombramos como socat.
+Una vez ahí, nos bajamos la versión de 64 para linux, en este caso cogemos el **.bin** y lo renombramos como socat.
 
 ![socat_github2](screenshots/2-Poseidon/socat_github2.png)
 
@@ -138,7 +138,7 @@ Ahora todas nuestras acciones sobre la máquina Poseidón deberán de utilizarse
 
 ### 🔍 Enumeración de Puertos
 
-En nuestra máquina utilizamos `proxychains4` y nmap sobre la 20.20.20.3 para obtener tanto sus puertos abiertos como los servicios y versiones que se ejecutan en ellos.
+En nuestra máquina utilizamos **proxychains4** y nmap sobre la 20.20.20.3 para obtener tanto sus puertos abiertos como los servicios y versiones que se ejecutan en ellos.
 ```bash
 proxychains4 -q nmap -sT -sCV -n -Pn 20.20.20.3
 ```
@@ -146,13 +146,13 @@ proxychains4 -q nmap -sT -sCV -n -Pn 20.20.20.3
 ![target_poseidon](screenshots/2-Poseidon/target_poseidon.png)
 
 
-Vemos que tenemos el puerto `22` y el `80` abiertos.
+Vemos que tenemos el puerto **22** y el **80** abiertos.
 
 ### Puerto 80
 
 Vamos a ver el puerto 80 con el navegador pero nosotros no tenemos conexión directa con la 20.20.20.3, así que tenemos que configurar un proxy en el navegador para poder acceder.
 
-Para ello, usamos la extensión de `FoxyProxy`.
+Para ello, usamos la extensión de **FoxyProxy**.
 
 ![FoxyProxy_extension](screenshots/2-Poseidon/FoxyProxy_extension.png)
 
@@ -172,9 +172,9 @@ Revisamos el código fuente para ver como tramita la petición este sistema de b
 
 ![source_search_poseidon](screenshots/2-Poseidon/source_search_poseidon.png)
 
-Podemos observar como tramita mediante el método `POST` una petición a un archivo `database.php`, por lo que entendemos que pasa el parámetro del campo de búsqueda y realiza la consulta a la base de datos con él.
+Podemos observar como tramita mediante el método **POST** una petición a un archivo **database.php**, por lo que entendemos que pasa el parámetro del campo de búsqueda y realiza la consulta a la base de datos con él.
 
-Intentamos utilizar la herramienta `sqlmap` para obtener la información de la base de datos, pero no nos funcionó. Así que tras varios intentos de averiguar que base de datos se estaba utilizando, conseguimos saber que se emplea una `sqlite`, ya que estas bases de datos usan una tabla interna que contiene el esquema de las bases de datos almacenadas, llamada sqlite_master.
+Intentamos utilizar la herramienta **sqlmap** para obtener la información de la base de datos, pero no nos funcionó. Así que tras varios intentos de averiguar que base de datos se estaba utilizando, conseguimos saber que se emplea una **sqlite**, ya que estas bases de datos usan una tabla interna que contiene el esquema de las bases de datos almacenadas, llamada **sqlite_master**.
 
 Para poder leer la información introducimos en el campo de búsqueda la consulta `select name from sqlite_master`.
 
@@ -185,7 +185,7 @@ Vemos dos tablas interesantes, "usuarios" y "contrasena", así que vamos a ver s
 ![usuarios_sql_poseidon](screenshots/2-Poseidon/usuarios_sql_poseidon.png)
 ![contraseña_sql_poseidon](screenshots/2-Poseidon/contraseña_sql_poseidon.png)
 
-Tenemos a los usuarios: `poseidon` y `megalodon`, y las contraseñas que parecen codificadas, así que vamos a decodificarlas.
+Tenemos a los usuarios: **poseidon** y **megalodon**, y las contraseñas que parecen codificadas, así que vamos a decodificarlas.
 
 ```
 $sha1$oceanos$QqFgxFPmqRex1ZKFCZ2ONJKWOTTNKFTU46SBM5ZKFCZ2ONJKWOTTNKFTU4GQPdkh3nQSWp3I=
@@ -199,7 +199,7 @@ Usando el mismo procedimiento que en la máquina Hades encontramos una contrase�
 ```bash
 echo 'JZKFCZ2ONJKWOTTNKFTU46SBM5HG2TLHJV5ECZ2NPJEWOTL2IFTU26SFM5GXU23HJVVEKPI=' | base32 -d | bae64 -d | xxd -r -p
 ```
-Obtenemos --> Templ02019!
+Obtenemos --> **Templ02019!**
 
 ### 🔑 Acceso por SSH
 
@@ -218,7 +218,7 @@ Segunda máquina - Poseidón completada.
 
 ### ⚙️ Configuración de Chisel y Socat
 
-La máquina Poseidón tiene conexión con la tercera máquina - Zeus, por lo tanto, realizamos el procedimiento anterior pero con alguna variación. Así que vamos a empezar con pasarnos `chisel` y `socat` a la máquina Poseidón.
+La máquina Poseidón tiene conexión con la tercera máquina - Zeus, por lo tanto, realizamos el procedimiento anterior pero con alguna variación. Así que vamos a empezar con pasarnos **chisel** y **socat** a la máquina Poseidón.
 
 Comprobamos con el comando `uname -m` que posee la misma arquitectura que la máquina Hades y como ese es el caso, podemos usar el mismo chisel que hemos estado utilizando. 
 
@@ -259,7 +259,7 @@ Vemos que la máquina Zeus tiene abierto los puertos 21, 22, 80, 139 y 445.
 
 ### Puertos 139 y 445
 
-En los puertos 139 y 445 está ejecutándose SAMBA, así que vamos a utilizar `enum4linux` para obtener información.
+En los puertos 139 y 445 está ejecutándose SAMBA, así que vamos a utilizar **enum4linux** para obtener información.
 
 ```bash
 proxychains4 -q enum4linux -a 30.30.30.3
@@ -275,7 +275,7 @@ Vamos a ver el puerto 80 pero primero configuramos el proxy para poder acceder. 
 
 ![proxy_zeus](screenshots/3-Zeus/proxy_zeus.png)
 
-Vemos la página por defecto de Apache. En el código fuente no encontramos nada y tras realizar fuzzing utilizando la herramienta de `wfuzz` no hemos encontrado ningún subdirectorio.
+Vemos la página por defecto de Apache. En el código fuente no encontramos nada y tras realizar fuzzing utilizando la herramienta de **wfuzz** no hemos encontrado ningún subdirectorio.
 
 ### Puerto 21
 
@@ -294,7 +294,7 @@ Una vez en el servidor ftp vemos un archivo .exe que nos descargamos usando el c
 
 ![ftp_zeus](screenshots/3-Zeus/ftp_zeus.png)
 
-Como es un binario vamos a utilizar `strings` para ver las cadenas legibles. Revisándolas encontramos una cadena que parece codificada.
+Como es un binario vamos a utilizar **strings** para ver las cadenas legibles. Revisándolas encontramos una cadena que parece codificada.
 
 ![kratos_text](screenshots/3-Zeus/kratos_text.png)
 
@@ -303,7 +303,7 @@ Está en base64 así que lo decodificamos.
 echo 'AGUAbABlAGMAdAByAG8AYwB1AHQANABjADEAMABuACE=' | base64 -d
 ```
 
-Y obtenemos --> electrocut4c10n!
+Y obtenemos --> **electrocut4c10n!**
 
 ### 🔑 Acceso por SSH
 
@@ -313,6 +313,6 @@ Con esa contraseña y el usuario rayito nos conectamos por ssh.
 proxychains4 -q ssh rayito@30.30.30.3
 ```
 
-Y como en las otras máquinas, nuestro usuario puede ejecutar como sudo todo lo que quiera, así que lanzando un sudo bash seremos root.
+Y como en las otras máquinas, nuestro usuario puede ejecutar como sudo todo lo que quiera, así que lanzando un `sudo bash` seremos root.
 
 Tercera máquina - Zeus completada.

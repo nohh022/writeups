@@ -14,7 +14,7 @@ La máquina Gallery posee la IP 172.17.0.2.
 
 ### Descubrimiento de Puertos
 
-Realizamos un reconocimiento de todos los puertos de la máquina y nos quedamos únicamente con aquellos que están abiertos. Para ello, vamos a recurrir a la herramienta `nmap`.
+Realizamos un reconocimiento de todos los puertos de la máquina y nos quedamos únicamente con aquellos que están abiertos. Para ello, vamos a recurrir a la herramienta **nmap**.
 
 ![allPorts](screenshots/allPorts.png)
 
@@ -78,7 +78,7 @@ Nos interesa ver el contenido de las columnas ssh_users y ssh_pass de la tabla s
 
 ![data-table](screenshots/data-table.png)
 
-Obtenemos al usuario sam,  y su contraseña `$uper$ecretP4$$w0rd123`. 
+Obtenemos al usuario **sam**,  y su contraseña **$uper$ecretP4$$w0rd123** 
 
 ## 🔑 Acceso SSH
 
@@ -89,7 +89,7 @@ ssh sam@172.17.0.2
 
 ![sam-ssh](screenshots/sam-ssh.png)
 
-Tras revisar el sistema encontramos el directorio de un servicio web que no corresponde con la galería de arte en `/var/www/terminal`, en él tenemos un index.php, con una parte que ejecuta comandos.
+Tras revisar el sistema encontramos el directorio de un servicio web que no corresponde con la galería de arte en **/var/www/terminal**, en él tenemos un index.php, con una parte que ejecuta comandos.
 
 ```php
 $output = isset($_POST['command']) ? '' : $header;
@@ -142,7 +142,7 @@ if (isset($_POST['command'])) {
 ?>
 ```
 
-Podemos ver como se trata de una especia de terminal que permite ejecutar una serie de comandos ya definidos, pero al final del código vemos un `shell_exec` que ejecuta el comando que le pasamos si este lleva  un punto y coma (;) o un pipe (|).
+Podemos ver como se trata de una especia de terminal que permite ejecutar una serie de comandos ya definidos, pero al final del código vemos un **shell_exec** que ejecuta el comando que le pasamos si este lleva  un punto y coma (;) o un pipe (|).
 
 Ahora bien, hay que comprobar si este archivo index.php se está ejecutando de forma interna en la máquina, para ello usamos el comando `ps -faux`
 

