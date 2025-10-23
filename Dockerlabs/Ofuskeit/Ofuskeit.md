@@ -119,6 +119,7 @@ while read passw ; do
 
     if [ $? -eq 0 ]; then
         echo -e "\nUser--> ${greenColour}$user${endColour} Password--> ${greenColour}$passw${endColour}\n"
+        tput cnorm
         exit 0
     fi
 
