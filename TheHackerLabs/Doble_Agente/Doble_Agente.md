@@ -91,9 +91,9 @@ Encontramos algo interesante  en el [blog](https://blog.thehackerslabs.com/anali
 
 Nos conectamos por **ssh** con el usuario **ghost** y la contraseña **V3nom_Access_2026**
 
+## ❓ Preguntas
 
-
-## Tras vulnerar el acceso SSH del usuario ghost, el analista localiza una carpeta de inteligencia llamada .ops. En el subdirectorio de T_CHARLIE, se encuentra un reporte de OSINT. Según la evidencia recolectada en la Red Azul en Instagram, ¿cuál es la clave que el objetivo dejó expuesto en un Post en su red social?
+### Tras vulnerar el acceso SSH del usuario ghost, el analista localiza una carpeta de inteligencia llamada .ops. En el subdirectorio de T_CHARLIE, se encuentra un reporte de OSINT. Según la evidencia recolectada en la Red Azul en Instagram, ¿cuál es la clave que el objetivo dejó expuesto en un Post en su red social?
 
 Revisamos el directorio **/home/ghost/.ops/T_CHARLIE** y encontramos dos archivos, **comunicaciones.zip** e **investigacion_osint.txt**. Si revisamos el archivo **investigacion_osint.txt**:
 
@@ -125,13 +125,13 @@ Se nos habla de una publicación en una cuenta de Instagram en la que al parecer
 
 
 
-## Al inspeccionar el tráfico de red interceptado en el directorio de T_ALPHA, se observa ruido de varios protocolos. Sin embargo, el líder del grupo ha ocultado una instrucción crítica dentro de paquetes ICMP dirigidos a un servidor de mando. ¿Cuál es el mensaje exacto (string) que confirma el inicio de la operación?
+### Al inspeccionar el tráfico de red interceptado en el directorio de T_ALPHA, se observa ruido de varios protocolos. Sin embargo, el líder del grupo ha ocultado una instrucción crítica dentro de paquetes ICMP dirigidos a un servidor de mando. ¿Cuál es el mensaje exacto (string) que confirma el inicio de la operación?
 
 En el directorio **/home/ghost/.ops/T_ALPHA** encontramos un archivo **evidencias.pcap** el cual abrimos con **wireshark** y buscamos el **string** que se ha enviado en los paquetes **ICMP**
 
 ![wireshark](screenshots/wireshark.png)
 
-## Al analizar la imagen de disco bravo_disk.img con Autopsy, se observa que la estructura está dañada, pero existen rastros de datos eliminados. ¿Cuál es el nombre asignado por el sistema forense al archivo recuperado en el inodo? EJ: Testingfile
+### Al analizar la imagen de disco bravo_disk.img con Autopsy, se observa que la estructura está dañada, pero existen rastros de datos eliminados. ¿Cuál es el nombre asignado por el sistema forense al archivo recuperado en el inodo? EJ: Testingfile
 
 Encontramos la imagen **bravo_disk** en el directorio **/home/ghost/.ops/T_BRAVO/**, nos la pasamos a nuestro equipo para poder analizarla.
 
@@ -150,19 +150,19 @@ V/V 12825:      $OrphanFiles
 Vemos que el archivo pertenece a la categoría **OrphanFiles** y está asociado al **inodo** 12825, por lo que vamos a emplear el **inodo** para ver el nombre asignado por el sistema forense.
 
 ```
-fls bravo_disk 12825
+fls bravo_disk.img 12825
 
 -/r * 14:   O******4
 ```
 
 
 
-## Aunque el archivo parece estar vacío o corrupto en la interfaz gráfica, los datos crudos permanecen en los bloques del disco. Utilizando herramientas de línea de comandos, localiza la cadena 'IP_DB' dentro de la imagen. ¿Cuál es la IP interna y la contraseña que la arquitecta intentó ocultar? EJ: 0.0.0.0 | password_1234
+### Aunque el archivo parece estar vacío o corrupto en la interfaz gráfica, los datos crudos permanecen en los bloques del disco. Utilizando herramientas de línea de comandos, localiza la cadena 'IP_DB' dentro de la imagen. ¿Cuál es la IP interna y la contraseña que la arquitecta intentó ocultar? EJ: 0.0.0.0 | password_1234
 
 Aplicamos **strings** sobre la imagen de **bravo_disk** para ver las cadenas de texto y conseguimos tanto la IP interna como la contraseña
 
 ```bash
-strings bravo_disk
+strings bravo_disk.img
 
 /home/kali/HackNet/V3N0M/bravo_mount
 lost+found
@@ -184,7 +184,7 @@ activity.log
 
 
 
-## Al investigar la carpeta de configuración del cliente de mensajería Matrix (/home/ghost/.config/Element/storage), se ha localizado una base de datos de caché. Tras analizar las conversaciones entre los miembros de 'The Void', ¿cuál es el nombre del malware que planean inyectar en la memoria y cuál es su código de activación oficial? EJ: Text_Text | TEST-9X-2025
+### Al investigar la carpeta de configuración del cliente de mensajería Matrix (/home/ghost/.config/Element/storage), se ha localizado una base de datos de caché. Tras analizar las conversaciones entre los miembros de 'The Void', ¿cuál es el nombre del malware que planean inyectar en la memoria y cuál es su código de activación oficial? EJ: Text_Text | TEST-9X-2025
 
 Accedemos a ese directorio y encontramos el archivo **matrix_cache.db**, lo abrimos empleando **sqlite3**.
 
@@ -194,13 +194,13 @@ Una vez dentro, listamos las tablas y encontramos la tabla **messages**, por lo 
 
 
 
-## El administrador del grupo, D3lt4_Phas3, admite en el chat haber cometido un error crítico de seguridad que podría comprometer la operación. ¿A qué hora exacta (HH:MM:SS) confiesa Delta haber dejado una sesión de Firefox abierta y qué acción inmediata dice que tomará para intentar remediarlo?
+### El administrador del grupo, D3lt4_Phas3, admite en el chat haber cometido un error crítico de seguridad que podría comprometer la operación. ¿A qué hora exacta (HH:MM:SS) confiesa Delta haber dejado una sesión de Firefox abierta y qué acción inmediata dice que tomará para intentar remediarlo?
 
 En los mensajes obtenidos de la base de datos anterior podemos encontrar la hora de la sesión abierta en Firefox.
 
 
 
-## Tras analizar las últimas acciones de D3lt4_Phas3 en el archivo /var/log/auth.log, se observa un intento desesperado por dejar de generar evidencias justo antes de que se perdiera la conexión con el nodo. ¿Qué comando específico ejecutó Delta para intentar detener el registro de eventos del sistema y a qué hora exacta (HH:MM:SS) lo hizo? EJ: sudo nano /etc/passwd | 10:30:00
+### Tras analizar las últimas acciones de D3lt4_Phas3 en el archivo /var/log/auth.log, se observa un intento desesperado por dejar de generar evidencias justo antes de que se perdiera la conexión con el nodo. ¿Qué comando específico ejecutó Delta para intentar detener el registro de eventos del sistema y a qué hora exacta (HH:MM:SS) lo hizo? EJ: sudo nano /etc/passwd | 10:30:00
 
 Revisamos el contenido del archivo **auth.log** y vemos el comando utilizado y su hora.
 
@@ -215,7 +215,7 @@ Mar 28 **:**:** debian sudo:    delta : TTY=pts/0 ; PWD=/home/ghost ; USER=**** 
 ```
 **Nota**: Atención al usuario que lo ejecuta
 
-## Tras realizar el análisis del volcado de memoria (memoria_echo.lime), se ha identificado un proceso sospechoso que no tiene un ejecutable correspondiente en el disco duro. ¿Cuál es el PID de dicho proceso y bajo qué usuario se está ejecutando? EJ: 6666 | root
+### Tras realizar el análisis del volcado de memoria (memoria_echo.lime), se ha identificado un proceso sospechoso que no tiene un ejecutable correspondiente en el disco duro. ¿Cuál es el PID de dicho proceso y bajo qué usuario se está ejecutando? EJ: 6666 | root
 
 En el directorio **/home/ghost/.ops/T_ECHO** encontramos el volcado de memoria.
 
